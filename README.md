@@ -6,7 +6,7 @@ first of all you need a renpy translation extractor. i recommend zenpy. if you s
 
 
 
-then start the program named renpytranslater
+then start the program named renpytranslator
 
 
 ![image](https://github.com/user-attachments/assets/18621e7d-f3ae-48e2-8307-d017c799c0a6)
