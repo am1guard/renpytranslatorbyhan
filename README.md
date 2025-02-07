@@ -21,7 +21,8 @@ if you are developing very large projects (1 million lines of text) you can use 
 ![image](https://github.com/user-attachments/assets/f27fd597-2903-4945-840c-6f74bc1c5424)
 
 
-ok now it's time to select the part where you select the translate folders you extracted with zenpy, paloslios or renpy sdk. select your folder from this button ![image](https://github.com/user-attachments/assets/e2576698-f6cf-488f-b4cb-7735e624fb36)
+ok now it's time to select the part where you select the translate folders you extracted with zenpy, paloslios or renpy sdk. select your folder from this button
+![image](https://github.com/user-attachments/assets/e2576698-f6cf-488f-b4cb-7735e624fb36)
 
 
 when you select a folder, this will show up
