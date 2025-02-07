@@ -28,12 +28,18 @@ ok now it's time to select the part where you select the translate folders you e
 
 
 when you select a folder, this will show up
+
+
 ![image](https://github.com/user-attachments/assets/a2d278a5-3f87-40c2-a3f6-e21c373f7221)
 
 if you choose correctly the translation folder, this panel will show you the .rpy files inside the folder of your choice.
+
+
 ![image](https://github.com/user-attachments/assets/dd9a3629-b72b-4415-af60-0273f5b8869f)
 
 when you are ready, just click this button for starting translation
+
+
 ![image](https://github.com/user-attachments/assets/bd2e0d51-c179-491c-9837-ffcfc4f4968d)
 
 
