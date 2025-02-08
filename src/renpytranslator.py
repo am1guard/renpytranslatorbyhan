@@ -1,5 +1,9 @@
+import ttkbootstrap as ttk
+import os
+os.environ["LC_ALL"] = "C"
+from ttkbootstrap.constants import *
 import tkinter as tk
-from tkinter import ttk, filedialog, scrolledtext, messagebox
+from tkinter import filedialog, scrolledtext, messagebox
 import os
 import re
 import concurrent.futures
@@ -18,9 +22,9 @@ class RenPyTranslator:
         self.root.geometry("1200x800")
         self.running = False
         self.placeholder_counter = 0
-        
-        # Dil desteği
-        self.target_language = tk.StringVar(value='tr')
+
+        # 1- Dil Seçimi (Çeviri için)
+        self.target_language = tk.StringVar(value='İngilizce')
         self.languages = {
             'Türkçe': 'tr',
             'español': 'es',
@@ -126,23 +130,131 @@ class RenPyTranslator:
             'Yorùbá': 'yo',
             'isiZulu': 'zu'
         }
-        
-        # Çeviri önbelleği
+
+        # 2- Arayüz Dili Seçimi (GUI metinlerinin yerelleştirilmesi)
+        self.interface_language = tk.StringVar(value="English")
+        self.interface_language_codes = {
+            "Turkish": "tr",
+            "English": "en",
+            "German": "de",
+            "French": "fr",
+            "Spanish": "es",
+            "Italiano": "it",
+            "Russian": "ru"
+        }
+        self.interface_texts = {
+            "tr": {
+                "target_label": "Hedef Dil:",
+                "proxy_list_label": "Proxy Listesi:",
+                "load_proxy_button": "Yükle",
+                "active_proxy_label": "Aktif Proxy: Yok",
+                "folder_button": "Klasör Seç",
+                "folder_label": "Seçilen Klasör: Yok",
+                "start_translation_button": "ÇEVİRİYİ BAŞLAT",
+                "tree_column_file": "Dosya Adı",
+                "tree_column_status": "Durum",
+                "tree_column_progress": "İlerleme",
+                "made_by": "Made by HAN",
+                "interface_lang_label": "Arayüz Dili:"
+            },
+            "en": {
+                "target_label": "Target Language:",
+                "proxy_list_label": "Proxy List:",
+                "load_proxy_button": "Load",
+                "active_proxy_label": "Active Proxy: None",
+                "folder_button": "Select Folder",
+                "folder_label": "Selected Folder: None",
+                "start_translation_button": "START TRANSLATION",
+                "tree_column_file": "File Name",
+                "tree_column_status": "Status",
+                "tree_column_progress": "Progress",
+                "made_by": "Made by HAN",
+                "interface_lang_label": "Interface Language:"
+            },
+            "de": {
+                "target_label": "Zielsprache:",
+                "proxy_list_label": "Proxy-Liste:",
+                "load_proxy_button": "Laden",
+                "active_proxy_label": "Aktiver Proxy: Keiner",
+                "folder_button": "Ordner auswählen",
+                "folder_label": "Ausgewählter Ordner: Keiner",
+                "start_translation_button": "ÜBERSETZUNG STARTEN",
+                "tree_column_file": "Dateiname",
+                "tree_column_status": "Status",
+                "tree_column_progress": "Fortschritt",
+                "made_by": "Gemacht von HAN",
+                "interface_lang_label": "Oberflächensprache:"
+            },
+            "fr": {
+                "target_label": "Langue cible:",
+                "proxy_list_label": "Liste de Proxy:",
+                "load_proxy_button": "Charger",
+                "active_proxy_label": "Proxy actif: Aucun",
+                "folder_button": "Sélectionner le dossier",
+                "folder_label": "Dossier sélectionné: Aucun",
+                "start_translation_button": "DÉMARRER LA TRADUCTION",
+                "tree_column_file": "Nom de fichier",
+                "tree_column_status": "Statut",
+                "tree_column_progress": "Progression",
+                "made_by": "Créé par HAN",
+                "interface_lang_label": "Langue de l'interface:"
+            },
+            "es": {
+                "target_label": "Idioma objetivo:",
+                "proxy_list_label": "Lista de Proxy:",
+                "load_proxy_button": "Cargar",
+                "active_proxy_label": "Proxy activo: Ninguno",
+                "folder_button": "Seleccionar carpeta",
+                "folder_label": "Carpeta seleccionada: Ninguna",
+                "start_translation_button": "INICIAR TRADUCCIÓN",
+                "tree_column_file": "Nombre de archivo",
+                "tree_column_status": "Estado",
+                "tree_column_progress": "Progreso",
+                "made_by": "Hecho por HAN",
+                "interface_lang_label": "Idioma de la interfaz:"
+            },
+            "it": {
+                "target_label": "Lingua di destinazione:",
+                "proxy_list_label": "Elenco Proxy:",
+                "load_proxy_button": "Carica",
+                "active_proxy_label": "Proxy attivo: Nessuno",
+                "folder_button": "Seleziona cartella",
+                "folder_label": "Cartella selezionata: Nessuna",
+                "start_translation_button": "AVVIA TRADUZIONE",
+                "tree_column_file": "Nome file",
+                "tree_column_status": "Stato",
+                "tree_column_progress": "Progresso",
+                "made_by": "Fatto da HAN",
+                "interface_lang_label": "Lingua interfaccia:"
+            },
+            "ru": {
+                "target_label": "Целевой язык:",
+                "proxy_list_label": "Список Proxy:",
+                "load_proxy_button": "Загрузить",
+                "active_proxy_label": "Активный Proxy: Нет",
+                "folder_button": "Выбрать папку",
+                "folder_label": "Выбранная папка: Нет",
+                "start_translation_button": "НАЧАТЬ ПЕРЕВОД",
+                "tree_column_file": "Имя файла",
+                "tree_column_status": "Статус",
+                "tree_column_progress": "Прогресс",
+                "made_by": "Сделано HAN",
+                "interface_lang_label": "Язык интерфейса:"
+            }
+        }
+
         self.cache_file = 'translation_cache.json'
         self.translation_cache = self.load_cache()
-        
+
         self.proxy_list = []
         self.good_proxies = []
         self.bad_proxies = []
-        self.proxy_cycle = None  # Proxy döngüsü, proxy yüklendikten sonra ayarlanacak.
+        self.proxy_cycle = None
         self.max_workers = os.cpu_count() * 8
-        
-        # GUI bileşenleri ve stil
+
         self.setup_ui()
         self.setup_styles()
-        self.root.after(50, self.update_progress)  # progress güncellemesi için
-        
-        # Kod desenleri
+        self.root.after(50, self.update_progress)
         self.code_patterns = [
             r'(\[.*?\])', r'(\{.*?\})', r'(<.*?>)',
             r'(@\d+)', r'(\b\w+_\w+\b)', r'\b\w+\.(png|jpg|mp3|ogg)\b',
@@ -156,13 +268,35 @@ class RenPyTranslator:
     def setup_ui(self):
         main_frame = ttk.Frame(self.root)
         main_frame.pack(padx=10, pady=10, fill='both', expand=True)
-
         control_frame = ttk.Frame(main_frame)
         control_frame.pack(fill='x', pady=5)
 
+        # Arayüz dili seçimi
+        interface_frame = ttk.Frame(control_frame)
+        interface_frame.pack(side='left', padx=5)
+        self.interface_lang_label = ttk.Label(
+            interface_frame, 
+            text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["interface_lang_label"]
+        )
+        self.interface_lang_label.pack(side="left")
+        self.interface_lang_combo = ttk.Combobox(
+            interface_frame,
+            textvariable=self.interface_language,
+            values=list(self.interface_language_codes.keys()),
+            state="readonly",
+            width=15
+        )
+        self.interface_lang_combo.pack(side="left", padx=5)
+        self.interface_lang_combo.bind("<<ComboboxSelected>>", self.update_interface_texts)
+
+        # Çeviri hedef dili seçimi
         lang_frame = ttk.Frame(control_frame)
         lang_frame.pack(side='left', padx=5)
-        ttk.Label(lang_frame, text="Hedef Dil:").pack(side='left')
+        self.target_label = ttk.Label(
+            lang_frame, 
+            text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["target_label"]
+        )
+        self.target_label.pack(side='left')
         self.lang_combo = ttk.Combobox(
             lang_frame,
             textvariable=self.target_language,
@@ -171,67 +305,105 @@ class RenPyTranslator:
             width=15
         )
         self.lang_combo.pack(side='left', padx=5)
-        self.lang_combo.current(0)
-        
+
+        # Proxy bölümü
         proxy_frame = ttk.Frame(control_frame)
         proxy_frame.pack(side='left', padx=5)
-        ttk.Label(proxy_frame, text="Proxy Listesi:").pack(side='left')
+        self.proxy_list_label = ttk.Label(
+            proxy_frame, 
+            text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["proxy_list_label"]
+        )
+        self.proxy_list_label.pack(side='left')
         self.proxy_text = scrolledtext.ScrolledText(proxy_frame, height=3, width=30)
         self.proxy_text.pack(side='left', padx=5)
-        ttk.Button(proxy_frame, text="Yükle", command=self.load_proxies).pack(side='left', padx=5)
-        self.proxy_status = ttk.Label(proxy_frame, text="Aktif Proxy: Yok")
-        self.proxy_status.pack(side='left', padx=5)
+        self.load_proxy_button = ttk.Button(
+            proxy_frame, 
+            text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["load_proxy_button"],
+            command=self.load_proxies
+        )
+        self.load_proxy_button.pack(side='left', padx=5)
+        self.active_proxy_label = ttk.Label(
+            proxy_frame, 
+            text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["active_proxy_label"]
+        )
+        self.active_proxy_label.pack(side='left', padx=5)
 
+        # Klasör seçimi
         file_frame = ttk.Frame(control_frame)
         file_frame.pack(side='left', padx=5)
-        ttk.Button(file_frame, text="Klasör Seç", command=self.select_folder).pack()
-        self.folder_label = ttk.Label(file_frame, text="Seçilen Klasör: Yok")
+        self.folder_button = ttk.Button(
+            file_frame, 
+            text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["folder_button"],
+            command=self.select_folder
+        )
+        self.folder_button.pack()
+        self.folder_label = ttk.Label(
+            file_frame, 
+            text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["folder_label"]
+        )
         self.folder_label.pack()
 
-        # Treeview ve sağa yerleştirilmiş scrollbar
+        # Dosya listesi (Treeview)
         tree_frame = ttk.Frame(main_frame)
         tree_frame.pack(fill='both', expand=True, pady=5)
-
         self.tree = ttk.Treeview(tree_frame, columns=('Dosya', 'Durum', 'İlerleme'), show='headings')
-        self.tree.heading('Dosya', text='Dosya Adı')
-        self.tree.heading('Durum', text='Durum')
-        self.tree.heading('İlerleme', text='İlerleme')
+        self.tree.heading('Dosya', text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["tree_column_file"])
+        self.tree.heading('Durum', text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["tree_column_status"])
+        self.tree.heading('İlerleme', text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["tree_column_progress"])
         self.tree.column('Dosya', width=400)
         self.tree.column('Durum', width=150)
         self.tree.column('İlerleme', width=100)
         self.tree.pack(side='left', fill='both', expand=True)
-
         tree_scrollbar = ttk.Scrollbar(tree_frame, orient='vertical', command=self.tree.yview)
         tree_scrollbar.pack(side='right', fill='y')
         self.tree.configure(yscrollcommand=tree_scrollbar.set)
 
-        self.console = scrolledtext.ScrolledText(main_frame, height=10, bg='#34495e', fg='#ecf0f1')
+        # Konsol alanı
+        self.console = scrolledtext.ScrolledText(main_frame, height=10, bg='#000000', fg='#00FFFF')
         self.console.pack(fill='both', expand=True, pady=5)
 
-        ttk.Button(main_frame, text="ÇEVİRİYİ BAŞLAT", command=self.start_translation_thread).pack(pady=10)
-        label = tk.Label(main_frame, text="Made by HAN")
-        label.pack(side="right", padx=(10, 0))
-        
+        # Çeviriyi başlat butonu
+        self.start_translation_button = ttk.Button(
+            main_frame, 
+            text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["start_translation_button"],
+            command=self.start_translation_thread
+        )
+        self.start_translation_button.pack(pady=10)
+        self.made_by_label = ttk.Label(
+            main_frame, 
+            text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["made_by"]
+        )
+        self.made_by_label.pack(side="right", padx=(10, 0))
+
+    def update_interface_texts(self, event=None):
+        lang_code = self.interface_language_codes[self.interface_language.get()]
+        texts = self.interface_texts[lang_code]
+        self.interface_lang_label.config(text=texts["interface_lang_label"])
+        self.target_label.config(text=texts["target_label"])
+        self.proxy_list_label.config(text=texts["proxy_list_label"])
+        self.load_proxy_button.config(text=texts["load_proxy_button"])
+        self.active_proxy_label.config(text=texts["active_proxy_label"])
+        self.folder_button.config(text=texts["folder_button"])
+        self.folder_label.config(text=texts["folder_label"])
+        self.start_translation_button.config(text=texts["start_translation_button"])
+        self.tree.heading('Dosya', text=texts["tree_column_file"])
+        self.tree.heading('Durum', text=texts["tree_column_status"])
+        self.tree.heading('İlerleme', text=texts["tree_column_progress"])
+        self.made_by_label.config(text=texts["made_by"])
+
     def setup_styles(self):
         style = ttk.Style()
-        style.theme_use('clam')
-        colors = {
-            'primary': '#3498db', 
-            'secondary': '#2980b9',
-            'background': '#2c3e50',
-            'text': '#ecf0f1'
-        }
-        self.root.config(bg=colors['background'])
-        style.configure('TButton', foreground=colors['text'], background=colors['primary'])
-        style.configure('TLabel', background=colors['background'], foreground=colors['text'])
-        style.configure('Treeview', background='#34495e', fieldbackground='#34495e', foreground='white')
-        style.map('TButton', background=[('active', colors['secondary'])])
+        style.theme_use('cyborg')
+        self.root.config(bg="#000000")
+        style.configure('TButton', foreground='#00FFFF', background='#000000', font=('Helvetica', 10, 'bold'))
+        style.map('TButton', background=[('active', '#1a1a1a')])
+        style.configure('TLabel', background='#000000', foreground='#00FFFF', font=('Helvetica', 10))
+        style.configure('Treeview', background='#000000', fieldbackground='#000000', foreground='#00FFFF', font=('Helvetica', 10))
 
     def load_proxies(self):
         try:
             with open("proxies.txt", "r") as f:
                 self.proxy_list = [line.strip() for line in f if line.strip()]
-            
             if self.proxy_list:
                 self.good_proxies = self.proxy_list.copy()
                 self.bad_proxies = []
@@ -259,7 +431,7 @@ class RenPyTranslator:
 
     def select_folder(self):
         self.folder_path = filedialog.askdirectory()
-        self.folder_label.config(text=f"Seçilen Klasör: {self.folder_path}")
+        self.folder_label.config(text=self.interface_texts[self.interface_language_codes[self.interface_language.get()]]["folder_label"].replace("Yok", self.folder_path if self.folder_path else "Yok"))
         self.populate_file_tree()
 
     def populate_file_tree(self):
@@ -274,7 +446,6 @@ class RenPyTranslator:
         self.console.insert(tk.END, message + "\n")
         self.console.see(tk.END)
 
-    # Sürekli her 50ms çalışarak kuyruğu kontrol eder
     def update_progress(self):
         try:
             while not self.progress_queue.empty():
@@ -302,7 +473,6 @@ class RenPyTranslator:
     def translate_text(self, text: str) -> str:
         target_lang = self.languages[self.target_language.get()]
         retries = 3
-        
         for attempt in range(retries):
             proxy = next(self.proxy_cycle) if self.proxy_cycle else None
             try:
@@ -313,8 +483,6 @@ class RenPyTranslator:
                     timeout=10
                 )
                 translated = translator.translate(text)
-                
-                # Başarılı proxy'i listenin başına al
                 if proxy and proxy in self.good_proxies:
                     self.good_proxies.remove(proxy)
                     self.good_proxies.insert(0, proxy)
@@ -325,8 +493,7 @@ class RenPyTranslator:
                     if proxy in self.good_proxies:
                         self.good_proxies.remove(proxy)
                 self.log(f"Çeviri hatası (deneme {attempt+1}/ {retries}): {str(e)}")
-        
-        return text  # Fallback
+        return text
 
     def load_cache(self) -> Dict:
         try:
@@ -377,7 +544,9 @@ class RenPyTranslator:
                     output.append(line)
                 processed_lines += 1
                 self.progress_queue.put(('progress', (file_name, (processed_lines/total_lines)*100, 'İşleniyor')))
-            output_path = file_path.replace('.rpy', '_translated.rpy')
+            translated_folder = os.path.join(self.folder_path, "translated")
+            os.makedirs(translated_folder, exist_ok=True)
+            output_path = os.path.join(translated_folder, file_name)
             with open(output_path, 'w', encoding='utf-8') as file:
                 file.writelines(output)
             self.progress_queue.put(('progress', (file_name, 100, 'Tamamlandı')))
@@ -386,16 +555,11 @@ class RenPyTranslator:
             return f"Hata: {os.path.basename(file_path)} - {str(e)}"
 
     def translate_and_cache(self, processed: str, replacements: Dict, original: str):
-        # Özel karakterleri koruma listesi
         special_characters = ["⬆", "⬇"]
-        
-        # Eğer metin özel karakterlerden birini içeriyorsa, çeviri yapmadan orijinal metni döndür
         if any(char in processed for char in special_characters):
             return (processed, original, original)
-        
         translated = self.translate_text(processed)
         if translated is None:
-            # Eğer çeviri None dönerse, orijinal metni kullan
             translated = original
         restored = self.restore_code(translated, replacements)
         return (processed, original, restored)
@@ -418,7 +582,6 @@ class RenPyTranslator:
             translated_text = ""
         for placeholder, code in replacements.items():
             translated_text = translated_text.replace(placeholder, code)
-        # Çift tırnakları tek tırnaklara çevir
         translated_text = translated_text.replace('"', "")
         return translated_text
 
@@ -447,54 +610,39 @@ class RenPyTranslator:
                     self.progress_queue.put(('error', str(e)))
         self.running = False
         self.save_cache()
-        # Çeviri tamamlandığında kullanıcıya bilgi veren uyarı kutusu
         self.root.after(0, lambda: messagebox.showinfo("Bilgi", "Çeviri Bitti"))
 
-    # DÜZELTİLMİŞ: process_file metodu artık sınıf içinde tanımlandı.
     def process_file(self, file_path: str):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
-            
             total_lines = len(lines)
             tasks = []
             translated_data = []
-            
-            # 1. Aşama: Tüm metinleri topla ve önbelleği kontrol et
             with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as prep_executor:
                 for line_num, line in enumerate(lines):
                     if line.strip().startswith(('old', '#')) or not line.strip():
                         translated_data.append((line_num, line))
                         continue
-
-                    modified_line = line  # Satırdaki değişiklikleri burada toplayacağız.
+                    modified_line = line
                     futures = []
                     for match in re.finditer(r'(?<!\\)(["\'])(.*?)(?<!\\)\1', line):
                         original = match.group(0)
                         text_inside = match.group(2)
                         processed, replacements = self.process_text(text_inside)
-
                         if processed in self.translation_cache:
                             restored = self.restore_code(self.translation_cache[processed], replacements)
                             modified_line = modified_line.replace(original, f'"{restored}"')
                         else:
                             futures.append((original, processed, replacements))
-                    
-                    # Eğer çeviri yapılacak hiçbir alıntı bulunamadıysa veya tümü cache'de varsa,
-                    # modified_line zaten düzenlenmiş durumda; aksi halde futures dolu ise tasks'e ekliyoruz.
                     if futures:
                         tasks.append((line_num, modified_line, futures))
                     else:
                         translated_data.append((line_num, modified_line))
-
-                    
                     if futures:
                         tasks.append((line_num, line, futures))
-            
-            # 2. Aşama: Tüm çevirileri paralel yap
             with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as translate_executor:
                 all_futures = []
-                
                 for line_num, original_line, futures in tasks:
                     line_futures = []
                     for original, processed, replacements in futures:
@@ -506,8 +654,6 @@ class RenPyTranslator:
                         )
                         line_futures.append((future, original))
                     all_futures.append((line_num, original_line, line_futures))
-                
-                # 3. Aşama: Sonuçları işle
                 for line_num, original_line, line_futures in all_futures:
                     modified_line = original_line
                     for future, original in line_futures:
@@ -517,27 +663,23 @@ class RenPyTranslator:
                             self.translation_cache[processed_key] = restored
                         except Exception as e:
                             self.log(f"Hata: {str(e)} - Orijinal metin kullanılıyor")
-                    
                     translated_data.append((line_num, modified_line))
                     self.progress_queue.put(('progress', (
                         os.path.basename(file_path),
                         ((line_num+1) / total_lines) * 100,
                         'İşleniyor'
                     )))
-            
-            # 4. Aşama: Sıralı çıktıyı oluştur ve ortak girintiyi kaldır
             translated_data.sort(key=lambda x: x[0])
             output_content = ''.join([line for _, line in translated_data])
-            output_content = textwrap.dedent(output_content)  # Ortak girinti kaldırılıyor.
-            output_content = output_content.lstrip()           # Dosyanın en başındaki gereksiz boşluklar kaldırılıyor.
-
-            output_path = file_path.replace('.rpy', '_translated.rpy')
+            output_content = textwrap.dedent(output_content)
+            output_content = output_content.lstrip()
+            translated_folder = os.path.join(self.folder_path, "translated")
+            os.makedirs(translated_folder, exist_ok=True)
+            output_path = os.path.join(translated_folder, os.path.basename(file_path))
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(output_content)
-            
             self.progress_queue.put(('progress', (os.path.basename(file_path), 100, 'Tamamlandı')))
             return True
-        
         except Exception as e:
             self.progress_queue.put(('error', f"Hata: {os.path.basename(file_path)} - {str(e)}"))
             return False
@@ -546,6 +688,6 @@ class RenPyTranslator:
         threading.Thread(target=self.start_translation, daemon=True).start()
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    root = ttk.Window(themename="cyborg")
     app = RenPyTranslator(root)
     root.mainloop()
